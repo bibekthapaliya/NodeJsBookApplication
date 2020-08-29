@@ -1,43 +1,77 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const Books = require('../model/books');
 const bookRouter = express.Router();
-
-
 bookRouter.use(bodyParser.json());
 
 bookRouter.route('/')
-.all((req,res,next)=>{
-    res.statusCode =200;
-    res.setHeader('Content-Type','text/plain');
-    next();
-})
 .get((req,res,next)=>{
-    res.end('Will send all the books to you!');
+      Books.find({})
+      .then((books)=>{
+          res.statusCode=200;
+          res.setHeader('Content-Type','application/json');
+          res.json(books);
+      },(err)=>next(err))
+      .catch((err)=> next(err));
 })
+
 .post((req,res,next)=>{
-    res.end('Will add the book:' + req.body.name + 'with details' + req.body.description);
+    Books.create(req.body)
+    .then((book)=>{
+        console.log('Book is Created',book);
+        res.statusCode=200;
+        res.setHeader('Content -Type','application/json');
+        res.json(book);
+    },(err)=> next(err))
+       .catch((err)=> next(err));
 })
 .put((req,res,next)=>{
     res.statusCode=403;
     res.end('Put operation not supported');
 })
 .delete((req, res, next) => {
-    res.end('Deleting all books');
+    Books.remove()
+    .then((resp)=>{
+        res.statusCode=200;
+        res.setHeader('Content -Type','application/json');
+        res.json(resp);
+    },(err)=> next(err))
+       .catch((err)=> next(err));
 });
 bookRouter.route('/:bookId')
 .get((req,res,next)=>{
-    res.end('will send details of the book:' + req.params.bookId + 'to you');
+    Books.findById(req.params.bookId)
+    .then((book)=>{
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(books);
+    },(err)=> next(err))
+        .catch((err)= next(err));
 })
 .post((req,res,next)=>{
-    res.statusCode = 404;
+    res.statusCode = 403;
     res.end('Post operation not supported on /books ' + req.params.bookId);
 })
 .put((req,res,next)=>{
-    res.write('Updating the book:' + req.params.bookId + '\n');
-    res.end('Will update the book:' + req.body.name+ 'with details:' +req.body.description);
+    Books.findByIdAndUpdate(req.params.bookId,{
+        $set:req.body
+    },{new:true})
+    .then((book)=>{
+        res.statusCode=200;
+        res.setHeader('Content-Type','application/json');
+        res.json(books);
+    },(err)=> next(err))
+        .catch((err)=> next(err));
 })
 .delete((req,res,next)=>{
-    res.end('Deleting book:' + req.params.bookId);
+    Books.findByIdAndRemove(req.params.bookId)
+    .then((resp)=>{
+        res.statusCode=200;
+        res.setHeader('Content-Type','application/json');
+        res.json(resp);
+    },(err)=> next(err))
+        .catch((err)=> next(err));
 })
 
 
