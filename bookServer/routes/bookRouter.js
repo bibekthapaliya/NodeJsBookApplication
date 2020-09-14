@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const Books = require('../model/books');
+const Books = require('../models/books');
 const bookRouter = express.Router();
 bookRouter.use(bodyParser.json());
 
